@@ -9,7 +9,8 @@ type Router struct {
 }
 
 type RouterParams struct {
-	UserHandler *UserHandler
+	UserHandler  *UserHandler
+	OAuthHandler *OAuthHandler
 }
 
 func NewRouter(p RouterParams) (*Router, error) {
@@ -41,6 +42,15 @@ func NewRouter(p RouterParams) (*Router, error) {
 		user.Post("/register", p.UserHandler.RegisterEndpoint)
 		user.Get("/list", p.UserHandler.ListUsersEndpoint)
 	}
+
+	// OAuth routes
+	auth := app.Group("/auth")
+	auth.Get("/google", p.OAuthHandler.GoogleLogin)
+	auth.Get("/google/callback", p.OAuthHandler.GoogleCallback)
+
+	// Protected routes (middleware to be implemented)
+	// protected := api.Group("/", authMiddleware)
+	// protected.Get("/users", p.UserHandler.ListUsersEndpoint)
 
 	return &Router{App: app}, nil
 }

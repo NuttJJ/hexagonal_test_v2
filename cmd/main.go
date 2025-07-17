@@ -23,9 +23,14 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := handler.NewUserHandler(userService)
 
+	// Create OAuth dependencies
+	oauthService := service.NewOAuthService(userService)
+	oauthHandler := handler.NewOAuthHandler(oauthService, userService)
+
 	// Create router
 	router, err := handler.NewRouter(handler.RouterParams{
-		UserHandler: userHandler,
+		UserHandler:  userHandler,
+		OAuthHandler: oauthHandler,
 	})
 	if err != nil {
 		log.Fatal("Failed to create router:", err)

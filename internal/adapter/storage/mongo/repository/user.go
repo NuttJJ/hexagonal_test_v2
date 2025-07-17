@@ -45,3 +45,46 @@ func (r *userRepo) ListUsers() ([]*domain.User, error) {
 
 	return users, nil
 }
+
+func (r *userRepo) FindByEmail(email string) (*domain.User, error) {
+	var user domain.User
+	filter := bson.M{"email": email}
+
+	err := r.coll.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *userRepo) FindByGoogleID(googleID string) (*domain.User, error) {
+	var user domain.User
+	filter := bson.M{"google_id": googleID}
+
+	err := r.coll.FindOne(context.Background(), filter).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *userRepo) UpdateUser(user *domain.User) (*domain.User, error) {
+	user.UpdatedAt = time.Now()
+	filter := bson.M{"_id": user.ID}
+	update := bson.M{"$set": user}
+
+	_, err := r.coll.UpdateOne(context.Background(), filter, update)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
